@@ -238,7 +238,7 @@ runBtn.addEventListener('click', async () => {
     resultsContainer.classList.add('hidden');
 
     try {
-        const response = await fetch('http://localhost:8001/api/simulate', {
+        const response = await fetch('/api/simulate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -430,12 +430,118 @@ tabs.ideas.btn.addEventListener('click', () => switchTab('ideas'));
 
 // --- Options Logic ---
 const runOptionsBtn = document.getElementById('run-options-btn');
+const optionsPlaceholder = document.getElementById('options-placeholder');
+const optionsResultsContainer = document.getElementById('options-results-container');
+
+let optionsChart = null;
+let currentPayoffData = null;
+let currentPayoffView = 'combined';
+
+const btnCall = document.getElementById('payoff-call-btn');
+const btnPut = document.getElementById('payoff-put-btn');
+const btnCombined = document.getElementById('payoff-combined-btn');
+
+function updatePayoffButtons() {
+    btnCall.className = currentPayoffView === 'call' ? 'primary-btn' : 'secondary-btn';
+    btnPut.className = currentPayoffView === 'put' ? 'primary-btn' : 'secondary-btn';
+    btnCombined.className = currentPayoffView === 'combined' ? 'primary-btn' : 'secondary-btn';
+    
+    [btnCall, btnPut, btnCombined].forEach(b => {
+        b.style.padding = '0.4rem 1rem';
+        b.style.fontSize = '0.85rem';
+        if(b.className.includes('secondary-btn')) b.style.border = 'none';
+        b.style.marginTop = '0';
+    });
+}
+
+btnCall.addEventListener('click', () => { currentPayoffView = 'call'; updatePayoffButtons(); renderOptionsChart(); });
+btnPut.addEventListener('click', () => { currentPayoffView = 'put'; updatePayoffButtons(); renderOptionsChart(); });
+btnCombined.addEventListener('click', () => { currentPayoffView = 'combined'; updatePayoffButtons(); renderOptionsChart(); });
+
+function renderOptionsChart() {
+    if (!currentPayoffData) return;
+    
+    const ctx = document.getElementById('optionsChart').getContext('2d');
+    if (optionsChart) {
+        optionsChart.destroy();
+    }
+    
+    const datasets = [];
+    
+    if (currentPayoffView === 'call' || currentPayoffView === 'combined') {
+        datasets.push({
+            label: 'Call Value (Today)',
+            data: currentPayoffData.call_current,
+            borderColor: '#38bdf8',
+            borderWidth: 2,
+            tension: 0.2,
+            pointRadius: 0
+        });
+        datasets.push({
+            label: 'Call Payoff (Expiry)',
+            data: currentPayoffData.call_expiry,
+            borderColor: '#38bdf8',
+            borderDash: [5, 5],
+            borderWidth: 2,
+            tension: 0,
+            pointRadius: 0
+        });
+    }
+    
+    if (currentPayoffView === 'put' || currentPayoffView === 'combined') {
+        datasets.push({
+            label: 'Put Value (Today)',
+            data: currentPayoffData.put_current,
+            borderColor: '#ef4444',
+            borderWidth: 2,
+            tension: 0.2,
+            pointRadius: 0
+        });
+        datasets.push({
+            label: 'Put Payoff (Expiry)',
+            data: currentPayoffData.put_expiry,
+            borderColor: '#ef4444',
+            borderDash: [5, 5],
+            borderWidth: 2,
+            tension: 0,
+            pointRadius: 0
+        });
+    }
+    
+    optionsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: currentPayoffData.s_range.map(v => formatOptCurrency(v)),
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } },
+                y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8', callback: v => formatOptCurrency(v) } }
+            },
+            plugins: {
+                legend: { labels: { color: '#94a3b8' } }
+            }
+        }
+    });
+}
 const optTickerInput = document.getElementById('opt-ticker');
 const optStrikeInput = document.getElementById('opt-strike');
 const optDaysInput = document.getElementById('opt-days');
 const optVolInput = document.getElementById('opt-vol');
-const optionsResultsContainer = document.getElementById('options-results-container');
-const optionsPlaceholder = document.getElementById('options-placeholder');
+const optCurrencySelect = document.getElementById('opt-currency-select');
+
+const formatOptCurrency = (val) => {
+    const currency = optCurrencySelect.value;
+    const locale = currency === 'INR' ? 'en-IN' : 'en-US';
+    return new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: currency
+    }).format(val);
+};
 
 runOptionsBtn.addEventListener('click', async () => {
     const ticker = optTickerInput.value.trim().toUpperCase();
@@ -462,7 +568,7 @@ runOptionsBtn.addEventListener('click', async () => {
     runOptionsBtn.textContent = 'Calculating...';
     
     try {
-        const response = await fetch('http://127.0.0.1:8001/api/options', {
+        const response = await fetch('/api/options', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -475,11 +581,11 @@ runOptionsBtn.addEventListener('click', async () => {
         
         const data = await response.json();
         
-        document.getElementById('opt-current-price').textContent = `$${data.current_price.toFixed(2)}`;
+        document.getElementById('opt-current-price').textContent = formatOptCurrency(data.current_price);
         document.getElementById('opt-current-vol').textContent = `${(data.calculated_volatility * 100).toFixed(2)}%`;
         
-        document.getElementById('call-price-display').textContent = `$${data.call_price.toFixed(2)}`;
-        document.getElementById('put-price-display').textContent = `$${data.put_price.toFixed(2)}`;
+        document.getElementById('call-price-display').textContent = formatOptCurrency(data.call_price);
+        document.getElementById('put-price-display').textContent = formatOptCurrency(data.put_price);
         
         document.getElementById('call-delta').textContent = data.greeks.call.delta.toFixed(4);
         document.getElementById('call-gamma').textContent = data.greeks.call.gamma.toFixed(4);
@@ -490,6 +596,10 @@ runOptionsBtn.addEventListener('click', async () => {
         document.getElementById('put-gamma').textContent = data.greeks.put.gamma.toFixed(4);
         document.getElementById('put-theta').textContent = data.greeks.put.theta.toFixed(4);
         document.getElementById('put-vega').textContent = data.greeks.put.vega.toFixed(4);
+        
+        currentPayoffData = data.payoff_data;
+        updatePayoffButtons();
+        renderOptionsChart();
         
         optionsPlaceholder.classList.add('hidden');
         optionsResultsContainer.classList.remove('hidden');
@@ -523,7 +633,7 @@ runIdeasBtn.addEventListener('click', async () => {
     runIdeasBtn.textContent = 'Scanning...';
     
     try {
-        const response = await fetch('http://127.0.0.1:8001/api/trade_ideas', {
+        const response = await fetch('/api/trade_ideas', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tickers: rawTickers })
@@ -554,6 +664,7 @@ runIdeasBtn.addEventListener('click', async () => {
             
             const stats = marketData[ticker];
             const ai = aiAnalysis[ticker];
+            const curSym = (stats.currency && stats.currency.toUpperCase() === 'INR') ? '₹' : '$';
             
             const ratingColor = ai.stock_rating.toLowerCase() === 'buy' ? '#10b981' : (ai.stock_rating.toLowerCase() === 'sell' ? '#ef4444' : '#f59e0b');
             
@@ -570,7 +681,7 @@ runIdeasBtn.addEventListener('click', async () => {
                         </span>
                     </h2>
                     <div style="text-align: right; font-size: 0.9rem; color: #94a3b8;">
-                        Price: $${stats.current_price.toFixed(2)} | <a href="https://www.investopedia.com/terms/r/rsi.asp" target="_blank" style="color: #38bdf8; text-decoration: none; border-bottom: 1px dotted #38bdf8;">RSI</a>: ${stats.rsi_14.toFixed(2)} | <a href="https://www.investopedia.com/terms/v/volatility.asp" target="_blank" style="color: #38bdf8; text-decoration: none; border-bottom: 1px dotted #38bdf8;">Volatility</a>: ${(stats.volatility*100).toFixed(1)}%
+                        Price: ${curSym}${stats.current_price.toFixed(2)} | <a href="https://www.investopedia.com/terms/r/rsi.asp" target="_blank" style="color: #38bdf8; text-decoration: none; border-bottom: 1px dotted #38bdf8;">RSI</a>: ${stats.rsi_14.toFixed(2)} | <a href="https://www.investopedia.com/terms/v/volatility.asp" target="_blank" style="color: #38bdf8; text-decoration: none; border-bottom: 1px dotted #38bdf8;">Volatility</a>: ${(stats.volatility*100).toFixed(1)}%
                     </div>
                 </div>
                 

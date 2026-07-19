@@ -25,28 +25,37 @@ def scan_market(tickers: list[str]) -> dict:
     if not tickers:
         return {}
 
-    # Fetch 6 months of data
-    data = yf.download(tickers, period="6mo", interval="1d", group_by="ticker", auto_adjust=True)
-    
     results = {}
-    
-    # Handle single ticker case vs multiple tickers
-    is_single = len(tickers) == 1
     
     for ticker in tickers:
         try:
-            if is_single:
-                df = data.copy()
-            else:
-                df = data[ticker].copy()
+            # 1. Try fetching the original ticker requested
+            df = yf.download(ticker, period="6mo", interval="1d", auto_adjust=True, progress=False)
+            
+            active_ticker = ticker
+            
+            # 2. If it failed, try the opposite (add .NS or remove .NS)
+            if df.empty or len(df) < 50 or 'Close' not in df:
+                alt_t = f"{ticker}.NS" if not ticker.endswith('.NS') else ticker.replace('.NS', '')
+                df = yf.download(alt_t, period="6mo", interval="1d", auto_adjust=True, progress=False)
+                active_ticker = alt_t
                 
-            if df.empty or len(df) < 50:
+            if df.empty or len(df) < 50 or 'Close' not in df:
+                print(f"Failed to fetch sufficient data for {ticker}")
                 continue
                 
             close = df['Close']
+            if isinstance(close, pd.DataFrame):
+                close = close.iloc[:, 0]
             
             # Current Price
             current_price = float(close.iloc[-1])
+            
+            # Extract currency
+            try:
+                currency = yf.Ticker(active_ticker).info.get('currency', 'USD')
+            except:
+                currency = 'USD'
             
             # Volatility (Annualized)
             returns = close.pct_change().dropna()
@@ -73,6 +82,7 @@ def scan_market(tickers: list[str]) -> dict:
                 
             results[ticker] = {
                 "current_price": current_price,
+                "currency": currency,
                 "volatility": volatility,
                 "sma_50": sma_50,
                 "sma_20": sma_20,

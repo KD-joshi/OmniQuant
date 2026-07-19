@@ -1,7 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import numpy as np
+import os
 
 from backend.monte_carlo import run_simulation, calculate_var
 from backend.llm_advisor import get_advice
@@ -89,12 +92,30 @@ def calculate_options(req: OptionsRequest):
         call_price, put_price = black_scholes_pricing(S, K, T, r, sigma)
         greeks = calculate_greeks(S, K, T, r, sigma)
         
+        # Calculate Payoff Data for Chart
+        s_range = np.linspace(S * 0.8, S * 1.2, 50)
+        payoff_data = {
+            "s_range": [],
+            "call_current": [],
+            "call_expiry": [],
+            "put_current": [],
+            "put_expiry": []
+        }
+        for s_val in s_range:
+            c, p = black_scholes_pricing(s_val, K, T, r, sigma)
+            payoff_data["s_range"].append(float(s_val))
+            payoff_data["call_current"].append(float(c))
+            payoff_data["call_expiry"].append(max(0.0, float(s_val - K)))
+            payoff_data["put_current"].append(float(p))
+            payoff_data["put_expiry"].append(max(0.0, float(K - s_val)))
+        
         return {
             "current_price": S,
             "calculated_volatility": sigma,
             "call_price": call_price,
             "put_price": put_price,
-            "greeks": greeks
+            "greeks": greeks,
+            "payoff_data": payoff_data
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -159,3 +180,12 @@ def simulate(req: SimulationRequest):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# --- Serve Frontend Statically ---
+frontend_path = os.path.join(os.path.dirname(__file__), '..', 'frontend')
+
+@app.get("/")
+async def serve_index():
+    return FileResponse(os.path.join(frontend_path, 'index.html'))
+
+app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")

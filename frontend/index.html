@@ -60,7 +60,12 @@
 
             <div class="input-group" id="custom-tickers-group">
                 <label for="tickers">Custom Tickers <sup class="info-icon" data-tooltip="Enter comma-separated stock tickers (e.g., TSLA, AAPL)">i</sup></label>
-                <input type="text" id="tickers" placeholder="e.g., TSLA, AMZN, NFLX" value="TSLA, AMZN">
+                <input type="text" id="tickers" placeholder="e.g. RELIANCE.NS, TCS.NS" value="RELIANCE.NS, TCS.NS">
+                
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="secondary-btn" onclick="document.getElementById('tickers').value='^NSEI, ^NSEBANK, RELIANCE.NS, TCS.NS'">Top Indian Large Caps</button>
+                    <button class="secondary-btn" onclick="document.getElementById('tickers').value='BTC-USD, ETH-USD'">Crypto</button>
+                </div>
                 
                 <button type="button" id="btn-customize-dist" class="secondary-btn" style="margin-top: 8px; margin-bottom: 8px; width: 100%; font-size: 0.85rem; padding: 0.5rem;">Configure Custom Amounts</button>
                 
@@ -72,10 +77,10 @@
                 <label for="investment">Initial Investment <sup class="info-icon" data-tooltip="The starting amount for the simulation">i</sup></label>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
                     <select id="currency-select" style="flex: 0 0 70px; padding: 0.75rem 0.5rem;">
+                        <option value="INR" selected>₹</option>
                         <option value="USD">$</option>
-                        <option value="INR">₹</option>
                     </select>
-                    <input type="number" id="investment" value="10000" min="100" style="flex: 1;">
+                    <input type="number" id="investment" value="100000" min="100" style="flex: 1;">
                 </div>
             </div>
 
@@ -140,15 +145,20 @@
 
         <!-- ================= OPTIONS VIEW ================= -->
         <div id="options-controls" class="controls-panel glass-panel hidden">
-            <h2>Options Contract</h2>
-            
+            <h2>Options Pricing Calculator</h2>
             <div class="input-group">
-                <label for="opt-ticker">Underlying Stock Ticker</label>
-                <input type="text" id="opt-ticker" placeholder="e.g., AAPL" value="AAPL">
+                <label for="opt-ticker">Asset Ticker</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="opt-ticker" placeholder="e.g. RELIANCE.NS" value="RELIANCE.NS" style="flex: 1;">
+                    <select id="opt-currency-select" style="flex: 0 0 95px; padding: 0.75rem 0.5rem;">
+                        <option value="INR" selected>INR (₹)</option>
+                        <option value="USD">USD ($)</option>
+                    </select>
+                </div>
             </div>
             <div class="input-group">
-                <label for="opt-strike">Strike Price ($)</label>
-                <input type="number" id="opt-strike" value="200" step="0.5">
+                <label for="opt-strike">Strike Price</label>
+                <input type="number" id="opt-strike" placeholder="e.g. 1500" value="1500" step="1">
             </div>
             <div class="input-group">
                 <label for="opt-days">Days to Expiry</label>
@@ -197,6 +207,20 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="card glass-panel" style="grid-column: 1 / -1; margin-top: 5px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
+                        <h3>P&L Payoff Visualizer</h3>
+                        <div style="display: flex; gap: 5px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px;">
+                            <button id="payoff-call-btn" class="secondary-btn" style="padding: 0.4rem 1rem; font-size: 0.85rem; border: none;">Call</button>
+                            <button id="payoff-put-btn" class="secondary-btn" style="padding: 0.4rem 1rem; font-size: 0.85rem; border: none;">Put</button>
+                            <button id="payoff-combined-btn" class="primary-btn" style="padding: 0.4rem 1rem; font-size: 0.85rem; margin-top: 0;">Combined</button>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height: 350px;">
+                        <canvas id="optionsChart"></canvas>
+                    </div>
+                </div>
             </div>
             
             <div id="options-placeholder" class="placeholder glass-panel">
@@ -209,7 +233,7 @@
             <h2>Market Screener</h2>
             <div class="input-group">
                 <label for="ideas-tickers">Target Stocks</label>
-                <input type="text" id="ideas-tickers" placeholder="e.g. AAPL, TSLA" value="AAPL, TSLA, MSFT">
+                <input type="text" id="ideas-tickers" placeholder="e.g. RELIANCE.NS, TCS.NS" value="RELIANCE.NS, TCS.NS, INFY.NS">
             </div>
             <button id="run-ideas-btn" class="primary-btn" style="width: 100%; margin-top: 10px;">Scan & Generate Ideas</button>
         </div>
