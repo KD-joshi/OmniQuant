@@ -4,30 +4,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monte Carlo Portfolio Simulator</title>
-    <link rel="stylesheet" href="style.css?v=4">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>OmniQuant | Quantitative Suite</title>
+    <link rel="stylesheet" href="style.css?v=5">
+    <!-- Google Fonts for sleek aesthetics -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
-    <div class="app-container">
-        <!-- Sidebar Controls -->
-        <aside class="sidebar glass-panel">
-            <div class="tab-container" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
-                <button id="tab-portfolio" class="tab-btn active">Portfolio Risk</button>
-                <button id="tab-options" class="tab-btn">Options Pricing</button>
-                <button id="tab-ideas" class="tab-btn">AI Trade Ideas</button>
-            </div>
-            
-            <div id="portfolio-controls">
-                <h2>Portfolio Details</h2>
+    <!-- Top Hero Section -->
+    <header class="hero-section">
+        <div class="hero-content">
+            <div class="hero-badge">Quantitative Analysis Engine</div>
+            <h1 class="hero-title"><span class="text-gradient">OmniQuant</span></h1>
+            <p class="hero-subtitle">Turning data into decisions. A professional suite for modeling risk, pricing derivatives, and generating technical insights.</p>
+        </div>
+    </header>
 
-                <div class="input-group">
-                <label for="portfolio-preset">Preset Portfolios <sup class="info-icon"
-                        data-tooltip="Select a pre-configured stock portfolio for quick analysis">i</sup></label>
+    <!-- Top Navigation Cards (replacing sidebar tabs) -->
+    <nav class="nav-grid">
+        <button id="tab-portfolio" class="nav-card glass-panel active">
+            <div class="nav-kicker">01 / 03</div>
+            <h3>Portfolio Risk</h3>
+            <p>Monte Carlo VaR Simulations</p>
+        </button>
+        <button id="tab-options" class="nav-card glass-panel">
+            <div class="nav-kicker">02 / 03</div>
+            <h3>Options Pricing</h3>
+            <p>Black-Scholes & Greeks</p>
+        </button>
+        <button id="tab-ideas" class="nav-card glass-panel">
+            <div class="nav-kicker">03 / 03</div>
+            <h3>Trade Insights</h3>
+            <p>Algorithmic Market Screener</p>
+        </button>
+    </nav>
+
+    <!-- Main Workspace -->
+    <main class="workspace-container">
+        
+        <!-- ================= PORTFOLIO VIEW ================= -->
+        <div id="portfolio-controls" class="controls-panel glass-panel">
+            <h2>Portfolio Details</h2>
+
+            <div class="input-group">
+                <label for="portfolio-preset">Preset Portfolios <sup class="info-icon" data-tooltip="Select a pre-configured stock portfolio for quick analysis">i</sup></label>
                 <select id="portfolio-preset">
                     <option value="custom">Custom Build</option>
                     <option value="AAPL,MSFT,GOOGL,NVDA">US Tech Giants</option>
@@ -37,21 +59,17 @@
             </div>
 
             <div class="input-group" id="custom-tickers-group">
-                <label for="tickers">Custom Tickers <sup class="info-icon"
-                        data-tooltip="Enter comma-separated stock tickers (e.g., TSLA, AAPL)">i</sup></label>
+                <label for="tickers">Custom Tickers <sup class="info-icon" data-tooltip="Enter comma-separated stock tickers (e.g., TSLA, AAPL)">i</sup></label>
                 <input type="text" id="tickers" placeholder="e.g., TSLA, AMZN, NFLX" value="TSLA, AMZN">
                 
                 <button type="button" id="btn-customize-dist" class="secondary-btn" style="margin-top: 8px; margin-bottom: 8px; width: 100%; font-size: 0.85rem; padding: 0.5rem;">Configure Custom Amounts</button>
                 
-                <div id="custom-amounts-container" class="hidden" style="margin-top: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px;">
-                    <!-- Dynamically populated rows go here -->
-                </div>
+                <div id="custom-amounts-container" class="hidden" style="margin-top: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px;"></div>
                 <button type="button" id="btn-cancel-custom-dist" class="hidden secondary-btn" style="margin-top: 8px; margin-bottom: 8px; width: 100%; font-size: 0.85rem; padding: 0.5rem; background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5);">Revert to Equal Weights</button>
             </div>
 
             <div class="input-group">
-                <label for="investment">Initial Investment <sup class="info-icon"
-                        data-tooltip="The starting amount for the simulation">i</sup></label>
+                <label for="investment">Initial Investment <sup class="info-icon" data-tooltip="The starting amount for the simulation">i</sup></label>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
                     <select id="currency-select" style="flex: 0 0 70px; padding: 0.75rem 0.5rem;">
                         <option value="USD">$</option>
@@ -62,8 +80,7 @@
             </div>
 
             <div class="input-group">
-                <label for="duration-val">Simulation Duration <sup class="info-icon"
-                        data-tooltip="How far into the future should we project the portfolio's performance? Max is 3 Years (756 Days).">i</sup></label>
+                <label for="duration-val">Simulation Duration <sup class="info-icon" data-tooltip="How far into the future should we project the portfolio's performance? Max is 3 Years (756 Days).">i</sup></label>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
                     <input type="number" id="duration-val" value="1" min="1" max="3" style="flex: 1;">
                     <select id="duration-unit" style="flex: 1;">
@@ -72,175 +89,182 @@
                         <option value="days">Days</option>
                     </select>
                 </div>
-                <small id="duration-warning" class="hidden" style="color: #ef4444; margin-top: 4px;">Max duration is 3
-                    Years.</small>
+                <small id="duration-warning" class="hidden" style="color: #ef4444; margin-top: 4px;">Max duration is 3 Years.</small>
             </div>
 
             <div class="input-group">
-                <label for="var-slider">VaR Confidence: <span id="var-value-display">95</span>% <sup class="info-icon"
-                        data-tooltip="Value at Risk (VaR) is the maximum amount you expect to lose over the selected duration in normal markets. A 95% confidence means there is only a 5% historical chance of losing more than this amount.">i</sup></label>
+                <label for="var-slider">VaR Confidence: <span id="var-value-display">95</span>% <sup class="info-icon" data-tooltip="Value at Risk (VaR) is the maximum amount you expect to lose over the selected duration in normal markets. A 95% confidence means there is only a 5% historical chance of losing more than this amount.">i</sup></label>
                 <input type="range" id="var-slider" min="90" max="99" value="95" step="1">
                 <small>Higher confidence = lower percentile analyzed.</small>
             </div>
 
-            <button id="run-btn" class="primary-btn">Run Analysis <sup class="info-icon"
-                    style="background: rgba(255,255,255,0.2); color: white;"
-                    data-tooltip="Click to fetch data and run 2,000 Monte Carlo futures">i</sup></button>
+            <button id="run-btn" class="primary-btn">Run Analysis</button>
 
-                <div id="loading" class="hidden">
-                    <div class="spinner"></div>
-                    <p>Running 2,000 futures...</p>
-                </div>
-            </div> <!-- End portfolio-controls -->
-
-            <div id="options-controls" class="hidden">
-                <h2>Options Contract</h2>
-                
-                <div class="input-group">
-                    <label for="opt-ticker">Underlying Stock Ticker <sup class="info-icon" data-tooltip="The stock you want to trade options on (e.g. AAPL, TSLA)">i</sup></label>
-                    <input type="text" id="opt-ticker" placeholder="e.g., AAPL" value="AAPL">
-                </div>
-                <div class="input-group">
-                    <label for="opt-strike">Strike Price ($) <sup class="info-icon" data-tooltip="The target price at which you can buy (Call) or sell (Put) the underlying stock">i</sup></label>
-                    <input type="number" id="opt-strike" value="200" step="0.5">
-                </div>
-                <div class="input-group">
-                    <label for="opt-days">Days to Expiry <sup class="info-icon" data-tooltip="Number of days until the option contract expires">i</sup></label>
-                    <input type="number" id="opt-days" value="30">
-                </div>
-                <div class="input-group">
-                    <label for="opt-vol">Implied Volatility (%) <sup class="info-icon" data-tooltip="Expected future volatility. If left blank, we will calculate the stock's historical volatility automatically.">i</sup></label>
-                    <input type="number" id="opt-vol" placeholder="Leave empty to use historical">
-                </div>
-                <button id="run-options-btn" class="primary-btn" style="width: 100%;">Calculate Options Price</button>
+            <div id="loading" class="hidden loading-indicator">
+                <div class="spinner"></div>
+                <p>Running 2,000 futures...</p>
             </div>
+        </div>
 
-            <div id="ideas-controls" class="hidden">
-                <h2>AI Options Screener</h2>
-                <div class="input-group">
-                    <label for="ideas-tickers">Target Stocks <sup class="info-icon" data-tooltip="Enter tickers to screen (e.g. AAPL, TSLA, NVDA)">i</sup></label>
-                    <input type="text" id="ideas-tickers" placeholder="e.g. AAPL, TSLA" value="AAPL, TSLA, MSFT">
-                </div>
-                <button id="run-ideas-btn" class="primary-btn" style="width: 100%; margin-top: 10px;">Scan & Generate Ideas</button>
-            </div>
-        </aside>
-
-        <!-- Main Content Area -->
-        <main class="main-content">
-            <div id="portfolio-main">
-                <header>
-                    <h1>Portfolio Risk Assessment</h1>
-                    <p>We implement Monte Carlo simulations to forecast the future risk of your stock portfolio. By generating thousands of random market scenarios based on historical data, it calculates your Value at Risk (VaR)—the maximum amount you should expect to lose in a normal market environment.</p>
-                <p style="margin-top: 1rem; color: #38bdf8; font-weight: 500;">Currently Simulating: <span id="simulated-tickers-display">None</span></p>
+        <div id="portfolio-main" class="results-panel">
+            <header>
+                <h2>Portfolio Risk Assessment</h2>
+                <p>We implement Monte Carlo simulations to forecast the future risk of your stock portfolio. By generating thousands of random market scenarios based on historical data, it calculates your Value at Risk (VaR).</p>
+                <p class="currently-simulating">Currently Simulating: <span id="simulated-tickers-display">None</span></p>
             </header>
 
             <div class="results-grid hidden" id="results-container">
-                <!-- Summary Cards -->
                 <div class="card glass-panel stat-card">
                     <h3>Expected Value</h3>
                     <h2 id="expected-value" class="text-gradient">$0.00</h2>
                     <p>Average scenario</p>
                 </div>
-
                 <div class="card glass-panel stat-card">
                     <h3>Value at Risk (<span id="var-confidence-label">95</span>%)</h3>
                     <h2 id="var-value" class="text-danger">$0.00</h2>
                     <p>Worst case scenario</p>
                 </div>
-
-                <!-- Advisor Card -->
                 <div class="card glass-panel advisor-card" style="grid-column: 1 / -1;">
                     <h3>Risk Assessment Summary</h3>
                     <p id="advisor-text" class="advisor-text">Simulation insights will appear here...</p>
                 </div>
-
-                <!-- Chart -->
                 <div class="card glass-panel chart-container" style="grid-column: 1 / -1;">
                     <canvas id="simulationChart"></canvas>
                 </div>
             </div>
 
-                <div id="placeholder" class="placeholder">
-                    <p>Select your portfolio and click <strong>Run Analysis</strong> to see the Monte Carlo paths.</p>
-                </div>
-            </div> <!-- End portfolio-main -->
+            <div id="placeholder" class="placeholder glass-panel">
+                <p>Select your portfolio and click <strong>Run Analysis</strong> to see the Monte Carlo paths.</p>
+            </div>
+        </div>
 
-            <div id="options-main" class="hidden">
-                <header>
-                    <h1>Black-Scholes Options Pricing</h1>
-                    <p>Calculates the theoretical fair price of European call and put options, along with risk sensitivities (The Greeks). <a href="https://www.investopedia.com/terms/b/blackscholes.asp" target="_blank" style="color: #38bdf8; text-decoration: underline; margin-left: 5px;">Learn more about Black-Scholes</a>.</p>
-                    <p style="margin-top: 1rem; color: #38bdf8; font-weight: 500;">Current Underlying Price: <span id="opt-current-price">N/A</span> | Volatility: <span id="opt-current-vol">N/A</span></p>
-                </header>
+        <!-- ================= OPTIONS VIEW ================= -->
+        <div id="options-controls" class="controls-panel glass-panel hidden">
+            <h2>Options Contract</h2>
             
-                <div class="results-grid hidden" id="options-results-container">
-                    <div class="card glass-panel stat-card">
-                        <h3>Theoretical Call Price</h3>
-                        <h2 id="call-price-display" class="text-gradient">$0.00</h2>
-                    </div>
-                    <div class="card glass-panel stat-card">
-                        <h3>Theoretical Put Price</h3>
-                        <h2 id="put-price-display" class="text-danger">$0.00</h2>
-                    </div>
-                    
-                    <div class="card glass-panel" style="grid-column: 1 / -1;">
-                        <h3>The Greeks (Risk Analysis)</h3>
-                        <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 15px;">
-                            <div style="flex: 1; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
-                                <h4 style="margin-bottom: 10px; color: #38bdf8;">Call Option Greeks</h4>
-                                <p><strong>Delta (Δ):</strong> <span id="call-delta">0</span></p>
-                                <p><strong>Gamma (Γ):</strong> <span id="call-gamma">0</span></p>
-                                <p><strong>Theta (Θ):</strong> <span id="call-theta">0</span></p>
-                                <p><strong>Vega (ν):</strong> <span id="call-vega">0</span></p>
-                            </div>
-                            <div style="flex: 1; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
-                                <h4 style="margin-bottom: 10px; color: #ef4444;">Put Option Greeks</h4>
-                                <p><strong>Delta (Δ):</strong> <span id="put-delta">0</span></p>
-                                <p><strong>Gamma (Γ):</strong> <span id="put-gamma">0</span></p>
-                                <p><strong>Theta (Θ):</strong> <span id="put-theta">0</span></p>
-                                <p><strong>Vega (ν):</strong> <span id="put-vega">0</span></p>
-                            </div>
-                        </div>
-                        
-                        <!-- Greeks Explanation Box -->
-                        <div style="margin-top: 20px; font-size: 0.95rem; color: #94a3b8; background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 8px; border-left: 4px solid #8b5cf6;">
-                            <h4 style="color: #c4b5fd; margin-bottom: 8px;">Understanding the Greeks:</h4>
-                            <ul style="padding-left: 20px; margin-bottom: 0; line-height: 1.5;">
-                                <li style="margin-bottom: 6px;"><strong>Delta (Δ):</strong> How much the option price changes for a $1 move in the underlying stock (e.g., 0.50 means it moves like owning 50 shares).</li>
-                                <li style="margin-bottom: 6px;"><strong>Gamma (Γ):</strong> How fast Delta accelerates. This is highest when the stock is close to your Strike Price.</li>
-                                <li style="margin-bottom: 6px;"><strong>Theta (Θ):</strong> Time decay. Exactly how much money this option loses <em>every single day</em> just by sitting in your account.</li>
-                                <li><strong>Vega (ν):</strong> Sensitivity to fear. How much the option price instantly spikes if overall market volatility increases by 1%.</li>
-                            </ul>
-                        </div>
-                    </div>
+            <div class="input-group">
+                <label for="opt-ticker">Underlying Stock Ticker</label>
+                <input type="text" id="opt-ticker" placeholder="e.g., AAPL" value="AAPL">
+            </div>
+            <div class="input-group">
+                <label for="opt-strike">Strike Price ($)</label>
+                <input type="number" id="opt-strike" value="200" step="0.5">
+            </div>
+            <div class="input-group">
+                <label for="opt-days">Days to Expiry</label>
+                <input type="number" id="opt-days" value="30">
+            </div>
+            <div class="input-group">
+                <label for="opt-vol">Implied Volatility (%) <sup class="info-icon" data-tooltip="Leave empty to use historical">i</sup></label>
+                <input type="number" id="opt-vol" placeholder="Leave empty for historical">
+            </div>
+            <button id="run-options-btn" class="primary-btn" style="width: 100%;">Calculate Price</button>
+        </div>
+
+        <div id="options-main" class="results-panel hidden">
+            <header>
+                <h2>Black-Scholes Options Pricing</h2>
+                <p>Calculates the theoretical fair price of European call and put options, along with risk sensitivities.</p>
+                <p class="currently-simulating">Underlying Price: <span id="opt-current-price">N/A</span> | Volatility: <span id="opt-current-vol">N/A</span></p>
+            </header>
+        
+            <div class="results-grid hidden" id="options-results-container">
+                <div class="card glass-panel stat-card">
+                    <h3>Theoretical Call Price</h3>
+                    <h2 id="call-price-display" class="text-gradient">$0.00</h2>
+                </div>
+                <div class="card glass-panel stat-card">
+                    <h3>Theoretical Put Price</h3>
+                    <h2 id="put-price-display" class="text-danger">$0.00</h2>
                 </div>
                 
-                <div id="options-placeholder" class="placeholder">
-                    <p>Enter an option contract and click <strong>Calculate</strong> to view pricing and risk.</p>
+                <div class="card glass-panel" style="grid-column: 1 / -1;">
+                    <h3>The Greeks (Risk Analysis)</h3>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 15px;">
+                        <div style="flex: 1; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
+                            <h4 style="margin-bottom: 10px; color: #38bdf8;">Call Option</h4>
+                            <p><strong>Delta:</strong> <span id="call-delta">0</span></p>
+                            <p><strong>Gamma:</strong> <span id="call-gamma">0</span></p>
+                            <p><strong>Theta:</strong> <span id="call-theta">0</span></p>
+                            <p><strong>Vega:</strong> <span id="call-vega">0</span></p>
+                        </div>
+                        <div style="flex: 1; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
+                            <h4 style="margin-bottom: 10px; color: #ef4444;">Put Option</h4>
+                            <p><strong>Delta:</strong> <span id="put-delta">0</span></p>
+                            <p><strong>Gamma:</strong> <span id="put-gamma">0</span></p>
+                            <p><strong>Theta:</strong> <span id="put-theta">0</span></p>
+                            <p><strong>Vega:</strong> <span id="put-vega">0</span></p>
+                        </div>
+                    </div>
                 </div>
-            </div> <!-- End options-main -->
+            </div>
+            
+            <div id="options-placeholder" class="placeholder glass-panel">
+                <p>Enter an option contract and click <strong>Calculate</strong> to view pricing and risk.</p>
+            </div>
+        </div>
 
-            <div id="ideas-main" class="hidden">
-                <header>
-                    <h1>AI Market Scanner & Trade Ideas</h1>
-                    <p>Our quantitative engine fetches live data, calculates technical indicators (<a href="https://www.investopedia.com/terms/r/rsi.asp" target="_blank" style="color: #38bdf8; text-decoration: underline;">RSI</a>, <a href="https://www.investopedia.com/terms/m/macd.asp" target="_blank" style="color: #38bdf8; text-decoration: underline;">MACD</a>, <a href="https://www.investopedia.com/terms/m/movingaverage.asp" target="_blank" style="color: #38bdf8; text-decoration: underline;">Moving Averages</a>), and uses our intelligent AI strategist to generate actionable Options and Stock strategies.</p>
-                </header>
+        <!-- ================= IDEAS VIEW ================= -->
+        <div id="ideas-controls" class="controls-panel glass-panel hidden">
+            <h2>Market Screener</h2>
+            <div class="input-group">
+                <label for="ideas-tickers">Target Stocks</label>
+                <input type="text" id="ideas-tickers" placeholder="e.g. AAPL, TSLA" value="AAPL, TSLA, MSFT">
+            </div>
+            <button id="run-ideas-btn" class="primary-btn" style="width: 100%; margin-top: 10px;">Scan & Generate Ideas</button>
+        </div>
 
-                <div id="ideas-loading" class="hidden" style="text-align: center; margin-top: 3rem;">
-                    <div class="spinner"></div>
-                    <p style="color: var(--text-muted); margin-top: 1rem;">Scanning market data and generating AI analysis...</p>
+        <div id="ideas-main" class="results-panel hidden">
+            <header>
+                <h2>AI Market Scanner & Trade Insights</h2>
+                <p>Our quantitative engine fetches live data, calculates technical indicators (RSI, MACD, Moving Averages), and uses our intelligent AI strategist to generate actionable insights.</p>
+            </header>
+
+            <div id="ideas-loading" class="hidden loading-indicator">
+                <div class="spinner"></div>
+                <p>Scanning market data and generating AI analysis...</p>
+            </div>
+
+            <div class="results-grid hidden" id="ideas-results-container" style="grid-template-columns: 1fr;">
+                <!-- Ideas cards will be injected here -->
+            </div>
+
+            <div id="ideas-placeholder" class="placeholder glass-panel">
+                <p>Enter a basket of stocks and click <strong>Scan</strong> to generate Trade Insights.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- About Section -->
+    <section class="about-section">
+        <div class="about-content">
+            <div class="about-header">
+                <div class="nav-kicker">Methodology · 04</div>
+                <h2>About <span class="text-gradient">OmniQuant</span></h2>
+                <p>Built for precision. OmniQuant unifies classical financial mathematics with modern quantitative technical analysis to help you make informed decisions.</p>
+            </div>
+            
+            <div class="about-grid">
+                <div class="glass-panel about-card">
+                    <div class="about-icon">01</div>
+                    <h3>Monte Carlo Simulations</h3>
+                    <p>We generate thousands of random walks using Geometric Brownian Motion based on a stock's historical drift and volatility. This allows us to accurately compute the <strong>Value at Risk (VaR)</strong>, helping you understand your maximum expected downside in normal market conditions.</p>
                 </div>
-
-                <div class="results-grid hidden" id="ideas-results-container" style="grid-template-columns: 1fr;">
-                    <!-- Ideas cards will be injected here -->
+                <div class="glass-panel about-card">
+                    <div class="about-icon">02</div>
+                    <h3>Black-Scholes Pricing</h3>
+                    <p>Our options pricer implements the classical Black-Scholes partial differential equation to determine the theoretical fair value of European contracts. We also compute first and second-order derivatives (The Greeks) to measure sensitivity to price, time decay, and implied volatility.</p>
                 </div>
-
-                <div id="ideas-placeholder" class="placeholder">
-                    <p>Enter a basket of stocks and click <strong>Scan</strong> to generate AI Trade Ideas.</p>
+                <div class="glass-panel about-card">
+                    <div class="about-icon">03</div>
+                    <h3>Quantitative Screening</h3>
+                    <p>The screener fetches live market data to compute technical indicators like the Relative Strength Index (RSI), Moving Average Convergence Divergence (MACD), and 50-day Simple Moving Averages. These metrics are fed into our proprietary algorithmic intelligence engine to recommend actionable strategies.</p>
                 </div>
-            </div> <!-- End ideas-main -->
-        </main>
-    </div>
-    <script src="main.js?v=9"></script>
+            </div>
+        </div>
+    </section>
+
+    <script src="main.js?v=10"></script>
 </body>
-
 </html>
