@@ -664,7 +664,10 @@ runIdeasBtn.addEventListener('click', async () => {
             
             const stats = marketData[ticker];
             const ai = aiAnalysis[ticker];
-            const curSym = (stats.currency && stats.currency.toUpperCase() === 'INR') ? '₹' : '$';
+            
+            const activeTicker = stats.active_ticker || ticker;
+            const isIndian = activeTicker.endsWith('.NS') || activeTicker.endsWith('.BO');
+            const curSym = (isIndian || (stats.currency && stats.currency.toUpperCase() === 'INR')) ? '₹' : '$';
             
             const ratingColor = ai.stock_rating.toLowerCase() === 'buy' ? '#10b981' : (ai.stock_rating.toLowerCase() === 'sell' ? '#ef4444' : '#f59e0b');
             

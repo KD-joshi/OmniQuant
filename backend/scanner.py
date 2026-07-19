@@ -81,6 +81,7 @@ def scan_market(tickers: list[str]) -> dict:
                 month_return = 0.0
                 
             results[ticker] = {
+                "active_ticker": active_ticker,
                 "current_price": current_price,
                 "currency": currency,
                 "volatility": volatility,
