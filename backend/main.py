@@ -184,6 +184,11 @@ def simulate(req: SimulationRequest):
 # --- Serve Frontend Statically ---
 frontend_path = os.path.join(os.path.dirname(__file__), '..', 'frontend')
 
+@app.get("/api/ping")
+async def ping():
+    """Lightweight endpoint for uptime monitoring (cron jobs)"""
+    return {"status": "ok", "message": "OmniQuant is awake!"}
+
 @app.get("/")
 async def serve_index():
     return FileResponse(os.path.join(frontend_path, 'index.html'))
