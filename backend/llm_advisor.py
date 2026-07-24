@@ -12,11 +12,11 @@ def get_advice(tickers, initial_investment, expected_value, var_custom, var_perc
     Uses the Gemini API to provide a short, personalized advisory message
     based on the Monte Carlo simulation results.
     """
-    api_key = os.environ.get("GOOGLE_API_KEY")
+    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
         
     if not api_key:
         return (
-            "We noticed you haven't provided a GOOGLE_API_KEY in your .env file. "
+            "We noticed you haven't provided a GEMINI_API_KEY in your Render environment variables. "
             "Please set it so our AI Advisor can analyze your specific "
             "Value at Risk (VaR) against your expected returns to provide personalized insights!"
         )
