@@ -45,8 +45,37 @@ def get_advice(tickers, initial_investment, expected_value, var_custom, var_perc
     try:
         response = model.generate_content(prompt)
         return response.text
-    except Exception as e:
-        return f"Could not generate advice at this time. Error: {str(e)}"
+    except Exception as e1:
+        print(f"Gemini failed for advice: {e1}. Falling back to Groq...")
+        try:
+            return get_groq_advice(prompt)
+        except Exception as e2:
+            print(f"Groq failed for advice: {e2}. Falling back to Algorithmic advice...")
+            if expected_value > initial_investment and var_custom < initial_investment * 0.2:
+                return f"Based on the Monte Carlo simulation, your portfolio of {', '.join(tickers)} shows strong projected growth to {symbol}{expected_value:,.2f} over the next year. The {confidence}% Value at Risk (VaR) indicates a maximum expected downside to {symbol}{var_custom:,.2f}, which represents an acceptable level of risk for this asset allocation. Overall, the risk-to-reward ratio appears highly favorable."
+            else:
+                return f"The Monte Carlo simulation projects an expected portfolio value of {symbol}{expected_value:,.2f} over the next year for {', '.join(tickers)}. However, the {confidence}% Value at Risk (VaR) model warns of a potential downside drop to {symbol}{var_custom:,.2f}. This indicates elevated volatility. Ensure this level of downside exposure aligns tightly with your personal risk tolerance before proceeding."
+
+def get_groq_advice(prompt: str):
+    api_key = os.environ.get("GROQ_API_KEY")
+    if not api_key:
+        raise ValueError("GROQ_API_KEY not set in .env")
+    
+    client = Groq(api_key=api_key)
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a quantitative financial advisor. Provide advice in plain text. Keep it professional and under 100 words."
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        model="llama3-8b-8192"
+    )
+    return chat_completion.choices[0].message.content
 
 def get_gemini_ideas(market_data: dict, prompt: str):
     api_key = os.environ.get("GOOGLE_API_KEY")
