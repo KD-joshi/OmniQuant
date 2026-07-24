@@ -184,10 +184,13 @@ def simulate(req: SimulationRequest):
 # --- Serve Frontend Statically ---
 frontend_path = os.path.join(os.path.dirname(__file__), '..', 'frontend')
 
+from fastapi import Response, status
+
 @app.get("/api/ping")
+@app.head("/api/ping")
 async def ping():
     """Lightweight endpoint for uptime monitoring (cron jobs)"""
-    return {"status": "ok", "message": "OmniQuant is awake!"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @app.get("/")
 async def serve_index():
